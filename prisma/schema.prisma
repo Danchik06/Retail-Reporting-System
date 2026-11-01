@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique // 'ADMIN', 'SELLER'
+  users User[]
+}
+
+model Branch {
+  id           Int           @id @default(autoincrement())
+  name         String
+  address      String
+  users        User[]
+  dailyReports DailyReport[]
+  orders       Order[]
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String        @unique
+  passwordHash String
+  roleId       Int
+  role         Role          @relation(fields: [roleId], references: [id])
+  branchId     Int?          // null для ADMIN
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  dailyReports DailyReport[]
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Product {
+  id          Int               @id @default(autoincrement())
+  name        String
+  sku         String            @unique
+  unit        String            // 'шт', 'упак' и т.д.
+  stockItems  DailyReportItem[]
+  defects     DefectItem[]
+  orderItems  OrderItem[]
+}
+
+model DailyReport {
+  id               Int                  @id @default(autoincrement())
+  branchId         Int
+  branch           Branch               @relation(fields: [branchId], references: [id])
+  userId           Int
+  user             User                 @relation(fields: [userId], references: [id])
+  date             DateTime             @db.Date
+  
+  totalRevenue     Decimal              @db.Decimal(10, 2)
+  cashRevenue      Decimal              @db.Decimal(10, 2)
+  cashlessRevenue  Decimal              @db.Decimal(10, 2)
+  openingCash      Decimal              @db.Decimal(10, 2) // Размен на начало дня
+  closingCash      Decimal              @db.Decimal(10, 2) // Остаток в кассе вечером
+  salaryExpense    Decimal?             @db.Decimal(10, 2) // Выданная зарплата
+  netCashToDeposit Decimal              @db.Decimal(10, 2) // Сумма к отправлению
+
+  stockItems       DailyReportItem[]
+  services         DailyReportService[]
+  defects          DefectItem[]
+
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model DailyReportItem {
+  id           Int         @id @default(autoincrement())
+  reportId     Int
+  report       DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  productId    Int
+  product      Product     @relation(fields: [productId], references: [id])
+  startStock   Int
+  soldQuantity Int
+  endStock     Int
+}
+
+model DailyReportService {
+  id          Int         @id @default(autoincrement())
+  reportId    Int
+  report      DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  serviceName String      // Например, "Доставка"
+  amount      Decimal     @db.Decimal(10, 2)
+}
+
+model DefectItem {
+  id        Int         @id @default(autoincrement())
+  reportId  Int
+  report    DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product     @relation(fields: [productId], references: [id])
+  quantity  Int
+  reason    String?
+  photoUrl  String?     // Ссылка на фото брака
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  branchId   Int
+  branch     Branch      @relation(fields: [branchId], references: [id])
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+  status     String      @default("PENDING") // PENDING, APPROVED, REJECTED
+  comment    String?
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+}
