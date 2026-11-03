@@ -1,49 +1,90 @@
+/* ==========================================================================
+   KancControl: палитра и базовые стили.
+   Цвета задаются ТОЛЬКО здесь. Порядок импорта в layout.js важен:
+   сначала bootstrap.min.css, затем этот файл, тогда наши значения побеждают.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light; /* тёмной темы нет, браузер не должен её навязывать */
+
+  /* --- Палитра KancControl --- */
+  --kc-navy: #172554; /* бренд, заголовки */
+  --kc-teal: #0d9488; /* акцент: иконки, индикаторы, крупные элементы */
+  --kc-teal-strong: #0f766e; /* кнопки и ссылки с текстом (контраст с белым ~5,5:1) */
+  --kc-teal-stronger: #115e59; /* наведение и нажатие */
+  --kc-bg: #f1f5f9; /* фон приложения */
+  --kc-surface: #ffffff; /* карточки */
+  --kc-text: #0f172a; /* основной текст */
+  --kc-text-muted: #64748b; /* второстепенный текст (лучше на белом фоне) */
+  --kc-border: #e2e8f0;
+
+  --kc-success: #16a34a;
+  --kc-warning: #f59e0b;
+  --kc-danger: #dc2626;
+  --kc-info: #2563eb;
+
+  --kc-radius: 0.5rem;
+
+  /* --- Привязка палитры к переменным Bootstrap --- */
+  --bs-body-font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
+  --bs-body-bg: var(--kc-bg);
+  --bs-body-bg-rgb: 241, 245, 249;
+  --bs-body-color: var(--kc-text);
+  --bs-body-color-rgb: 15, 23, 42;
+  --bs-secondary-color: var(--kc-text-muted);
+  --bs-heading-color: var(--kc-navy);
+  --bs-border-color: var(--kc-border);
+  --bs-border-radius: var(--kc-radius);
+
+  --bs-primary: var(--kc-teal-strong);
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-link-color: var(--kc-teal-strong);
+  --bs-link-color-rgb: 15, 118, 110;
+  --bs-link-hover-color: var(--kc-teal-stronger);
+  --bs-link-hover-color-rgb: 17, 94, 89;
+
+  --bs-success: var(--kc-success);
+  --bs-success-rgb: 22, 163, 74;
+  --bs-warning: var(--kc-warning);
+  --bs-warning-rgb: 245, 158, 11;
+  --bs-danger: var(--kc-danger);
+  --bs-danger-rgb: 220, 38, 38;
+  --bs-info: var(--kc-info);
+  --bs-info-rgb: 37, 99, 235;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Кнопки Bootstrap берут цвета из собственных переменных, поэтому
+   основную кнопку перекрашиваем отдельно */
+.btn-primary {
+  --bs-btn-bg: var(--kc-teal-strong);
+  --bs-btn-border-color: var(--kc-teal-strong);
+  --bs-btn-hover-bg: var(--kc-teal-stronger);
+  --bs-btn-hover-border-color: var(--kc-teal-stronger);
+  --bs-btn-active-bg: var(--kc-teal-stronger);
+  --bs-btn-active-border-color: var(--kc-teal-stronger);
+  --bs-btn-disabled-bg: var(--kc-teal-strong);
+  --bs-btn-disabled-border-color: var(--kc-teal-strong);
+  --bs-btn-focus-shadow-rgb: 13, 148, 136;
 }
 
-html {
-  height: 100%;
+/* Крупные области нажатия (не менее 44 px) */
+.btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+.form-control,
+.form-select {
+  min-height: 44px;
 }
 
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* Рамка фокуса полей в цвет бренда */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--kc-teal);
+  box-shadow: 0 0 0 0.25rem rgba(13, 148, 136, 0.25);
 }
